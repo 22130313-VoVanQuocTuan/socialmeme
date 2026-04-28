@@ -1,0 +1,32 @@
+# Tạo virtual environment
+cd backend
+python -m venv venv
+source venv\Scripts\activate
+
+cd venv
+# Cài đặt
+pip install -r requirements.txt
+
+
+# Dùng Docker
+docker run --name socialmeme-postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=socialmeme_db -p 5432:5432 -d postgres:15
+
+#Tạo auto db với alembic
+# Khởi tạo alembic
+alembic init migrations
+# Tạo migration
+alembic revision --autogenerate -m "Initial migration"
+#trong file alembic.py sửa lại dường đẫn 
+sqlalchemy.url = postgresql://postgres:password@localhost:5432/socialmeme_db
+# Chạy migration
+alembic upgrade head
+
+
+
+# Chuyển về thời gian
+ALTER DATABASE socialmeme_db SET timezone TO 'Asia/Ho_Chi_Minh';
+
+#run
+cd D:\socialmeme\be
+venv\Scripts\activate
+uvicorn app.main:app --reload --port 8000

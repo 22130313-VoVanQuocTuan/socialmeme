@@ -1,0 +1,167 @@
+# D:\socialmeme\be\.gitignore
+
+# -------------------------------
+# Python
+# -------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.eggs/
+*.egg
+*.egg-info/
+dist/
+build/
+develop-eggs/
+downloads/
+parts/
+sdist/
+var/
+wheels/
+*.whl
+*.tgz
+
+# -------------------------------
+# Virtual Environment
+# -------------------------------
+venv/
+env/
+ENV/
+.venv
+.env
+.venv/
+venv.bak/
+env.bak/
+
+# -------------------------------
+# IDE và Editor
+# -------------------------------
+# VSCode
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Sublime Text
+*.sublime-*
+.DS_Store
+
+# -------------------------------
+# Database
+# -------------------------------
+*.db
+*.sqlite
+*.sqlite3
+*.db3
+
+# -------------------------------
+# File cấu hình và biến môi trường
+# -------------------------------
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+config.py
+secrets.py
+*.key
+*.pem
+*.crt
+
+# -------------------------------
+# Alembic migrations (chỉ ignore *.pyc, không ignore file migration)
+# -------------------------------
+migrations/__pycache__/
+migrations/versions/__pycache__/
+# KHÔNG ignore migrations/versions/*.py (vì cần commit để đồng bộ team)
+
+# -------------------------------
+# Logs
+# -------------------------------
+*.log
+logs/
+*.log.*
+
+# -------------------------------
+# Uploaded files và Media
+# -------------------------------
+uploads/
+temp/
+static/uploads/
+media/
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.mp4
+*.mp3
+
+# -------------------------------
+# Models và dữ liệu ML
+# -------------------------------
+models/*.pkl
+models/*.joblib
+models/*.h5
+models/*.pt
+models/*.pth
+*.model
+*.weights
+
+# -------------------------------
+# Cache
+# -------------------------------
+*.cache
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.tox/
+
+# -------------------------------
+# Testing
+# -------------------------------
+.pytest_cache/
+.tox/
+.coverage
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# -------------------------------
+# Celery
+# -------------------------------
+celerybeat-schedule
+celerybeat.pid
+*.pid
+
+# -------------------------------
+# Docker
+# -------------------------------
+*.pid
+docker-compose.override.yml
+.dockerignore
+
+# -------------------------------
+# Jupyter Notebook
+# -------------------------------
+.ipynb_checkpoints/
+*.ipynb
+
+# -------------------------------
+# OS
+# -------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
