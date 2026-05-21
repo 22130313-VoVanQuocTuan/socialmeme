@@ -6,6 +6,7 @@ from app.models.behavior import UserBehavior
 from app.models.like import Like
 from app.models.share import Share
 from app.models.view import MemeView
+from app.models.comment import Comment
 from app.models.trend_prediction import TrendPrediction
 from app.models.notification import Notification
 from app.models.report import ReportedMeme
@@ -21,6 +22,7 @@ __all__ = [
     "Like",
     "Share",
     "MemeView",
+    "Comment",
     "TrendPrediction",
     "Notification",
     "UserSession",

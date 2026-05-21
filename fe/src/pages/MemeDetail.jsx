@@ -3,7 +3,8 @@ import { useState, useEffect, useContext } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import { getMeme, likeMeme, shareMeme, deleteMeme } from '../service/memeApi';
-import { Heart, Share2, Eye, Trash2, ArrowLeft, User } from 'lucide-react';
+import { getComments, createComment, deleteComment } from '../service/commentApi';
+import { Heart, Share2, Eye, Trash2, ArrowLeft, User, MessageCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getTrendingFeed } from '../service/feedApi';
 import { trackView } from '../service/viewApi';
@@ -18,14 +19,18 @@ export default function MemeDetail() {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [relatedMemes, setRelatedMemes] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [commentText, setCommentText] = useState('');
+  const [commentLoading, setCommentLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-   useEffect(() => {
+  useEffect(() => {
     // Gọi API track_view (chỉ khi có user đăng nhập)
     if (user) {
       trackView(id, 0);
     }
     fetchMeme();
+    fetchComments();
   }, [id, user]);
 
   const fetchMeme = async () => {
@@ -43,6 +48,50 @@ export default function MemeDetail() {
       navigate('/');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchComments = async () => {
+    try {
+      const data = await getComments(id);
+      setComments(data);
+    } catch (error) {
+      console.error('Fetch comments error:', error);
+    }
+  };
+
+  const handleSubmitComment = async () => {
+    if (!user) {
+      toast.error('Vui lòng đăng nhập để bình luận');
+      navigate('/login');
+      return;
+    }
+
+    if (!commentText.trim()) {
+      toast.error('Vui lòng nhập nội dung bình luận');
+      return;
+    }
+
+    setCommentLoading(true);
+    try {
+      const newComment = await createComment(id, commentText.trim());
+      setComments((prev) => [newComment, ...prev]);
+      setCommentText('');
+      toast.success('Đã thêm bình luận');
+    } catch (error) {
+      toast.error('Không thể thêm bình luận');
+    } finally {
+      setCommentLoading(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await deleteComment(commentId);
+      setComments((prev) => prev.filter((comment) => comment.id !== commentId));
+      toast.success('Đã xóa bình luận');
+    } catch (error) {
+      toast.error('Không thể xóa bình luận');
     }
   };
 
@@ -213,9 +262,15 @@ export default function MemeDetail() {
                       <span>Chia sẻ</span>
                     </button>
                     
-                    <div className="flex items-center gap-1 text-gray-400">
-                      <Eye size={18} />
-                      <span>{meme.view_count} lượt xem</span>
+                    <div className="flex items-center gap-4 text-gray-400">
+                      <div className="flex items-center gap-1">
+                        <Eye size={18} />
+                        <span>{meme.view_count} lượt xem</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MessageCircle size={18} />
+                        <span>{comments.length} bình luận</span>
+                      </div>
                     </div>
                   </div>
                   
@@ -230,6 +285,65 @@ export default function MemeDetail() {
                   )}
                 </div>
               </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-md p-5 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2 text-lg font-semibold text-gray-800">
+                  <MessageCircle size={20} />
+                  Bình luận
+                </div>
+                <span className="text-sm text-gray-400">{comments.length} bình luận</span>
+              </div>
+
+              {user ? (
+                <div className="space-y-3 mb-5">
+                  <textarea
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    rows={4}
+                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 focus:border-red-500 focus:outline-none"
+                    placeholder="Viết bình luận..."
+                  />
+                  <button
+                    onClick={handleSubmitComment}
+                    disabled={commentLoading}
+                    className="inline-flex items-center justify-center rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition disabled:opacity-50"
+                  >
+                    {commentLoading ? 'Đang gửi...' : 'Gửi bình luận'}
+                  </button>
+                </div>
+              ) : (
+                <div className="mb-5 rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
+                  Vui lòng đăng nhập để tham gia bình luận.
+                </div>
+              )}
+
+              {comments.length === 0 ? (
+                <p className="text-gray-500">Chưa có bình luận nào.</p>
+              ) : (
+                <div className="space-y-4">
+                  {comments.map((comment) => (
+                    <div key={comment.id} className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-gray-800">{comment.username}</p>
+                          <p className="text-xs text-gray-400">{formatDate(comment.created_at)}</p>
+                        </div>
+                        {user && comment.user_id === user.id && (
+                          <button
+                            onClick={() => handleDeleteComment(comment.id)}
+                            className="text-xs text-red-600 hover:underline"
+                          >
+                            Xóa
+                          </button>
+                        )}
+                      </div>
+                      <p className="mt-3 text-gray-700 whitespace-pre-wrap">{comment.content}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -272,6 +386,10 @@ export default function MemeDetail() {
                 <div className="flex justify-between">
                   <span className="text-gray-500">Lượt xem</span>
                   <span className="text-gray-700">{meme.view_count}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Bình luận</span>
+                  <span className="text-gray-700">{comments.length}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Lượt chia sẻ</span>
