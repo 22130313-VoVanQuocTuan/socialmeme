@@ -2,6 +2,8 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from app.models.comment import Comment
 from app.models.meme import Meme
+from app.models.user import User
+from app.services.notification_service import NotificationService
 
 class CommentController:
 
@@ -17,7 +19,7 @@ class CommentController:
         }
 
     @staticmethod
-    def create_comment(user_id: int, meme_id: int, content: str, db: Session) -> dict:
+    def create_comment(user_id: int, username: str, meme_id: int, content: str, db: Session) -> dict:
         if not content or not content.strip():
             raise HTTPException(400, "Bình luận không được để trống")
 
@@ -29,6 +31,21 @@ class CommentController:
         db.add(comment)
         db.commit()
         db.refresh(comment)
+
+        if meme.user_id != user_id:
+            NotificationService.create_notification(
+                user_id=meme.user_id,
+                type="comment",
+                title="Bình luận mới",
+                message=f"{username} đã bình luận trên meme của bạn.",
+                extra_data={
+                    "meme_id": meme.id,
+                    "comment_id": comment.id,
+                    "actor_id": user_id,
+                    "action": "comment",
+                },
+                db=db,
+            )
 
         return CommentController.serialize_comment(comment)
 

@@ -2,6 +2,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from app.models.meme import Meme
+from app.services.recommendation_service import RecommendationService
 
 class FeedController:
     
@@ -42,3 +43,10 @@ class FeedController:
         ).limit(limit).all()
         
         return memes
+    
+    @staticmethod
+    def get_recommended_feed(user_id: int, db: Session, limit: int = 20):
+        """Lấy meme được gợi ý dựa trên hành vi người dùng"""
+        memes = RecommendationService.get_recommended_memes(user_id, db, limit)
+        has_behavior = len(memes) > 0
+        return memes, has_behavior

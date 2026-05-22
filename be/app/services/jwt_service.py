@@ -21,6 +21,15 @@ def verify_token(token: str) -> dict:
     except JWTError:
         return None
 
+def get_user_from_token(token: str, db: Session) -> User:
+    payload = verify_token(token)
+    if not payload:
+        return None
+    user = db.query(User).filter(User.id == payload.get("user_id")).first()
+    if not user or not user.is_active:
+        return None
+    return user
+
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)

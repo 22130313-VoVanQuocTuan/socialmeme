@@ -3,6 +3,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.controllers.feed_controller import FeedController
+from app.services.jwt_service import get_current_user
+from app.models.user import User
 
 router = APIRouter(prefix="/api/feed", tags=["feed"])
 
@@ -15,6 +17,17 @@ def get_trending(limit: int = 20, db: Session = Depends(get_db)):
 def get_latest(limit: int = 20, db: Session = Depends(get_db)):
     memes = FeedController.get_latest_feed(db, limit)
     return {"memes": memes}
+
+@router.get("/recommended")
+def get_recommended(limit: int = 20, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Lấy meme được gợi ý dựa trên hành vi người dùng"""
+    memes, has_behavior = FeedController.get_recommended_feed(current_user.id, db, limit)
+    # Debug: log recommendation payload for troubleshooting UI issues
+    try:
+        print(f"[DEBUG] /api/feed/recommended user={current_user.id} has_behavior={has_behavior} count={len(memes)}")
+    except Exception:
+        print("[DEBUG] /api/feed/recommended (could not log details)")
+    return {"memes": memes, "has_behavior": has_behavior}
 
 @router.get("/user/{user_id}")
 def get_user_memes(user_id: int, limit: int = 20, db: Session = Depends(get_db)):

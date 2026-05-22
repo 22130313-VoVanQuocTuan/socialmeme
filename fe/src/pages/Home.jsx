@@ -2,67 +2,9 @@
 import { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
-import { Heart, Share2, Eye, TrendingUp, Clock } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { TrendingUp, Clock } from 'lucide-react';
 import { getLatestFeed, getTrendingFeed } from '../service/feedApi';
-import { likeMeme, shareMeme } from '../service/memeApi';
-
-function MemeCard({ meme, onLike }) {
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(meme.like_count);
-
-  const handleLike = async () => {
-    const result = await likeMeme(meme.id);
-    setLiked(result.liked);
-    setLikeCount(result.like_count);
-    if (onLike) onLike();
-  };
-
-  const handleShare = async () => {
-    await shareMeme(meme.id, 'copy_link');
-    navigator.clipboard.writeText(`${window.location.origin}/meme/${meme.id}`);
-    toast.success('Đã sao chép link!');
-  };
-
-  return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition">
-      <Link to={`/meme/${meme.id}`}>
-        <img
-          src={`http://localhost:8000${meme.image_url}`}
-          alt="meme"
-          className="w-full object-cover"
-        />
-      </Link>
-      <div className="p-3">
-        <p className="text-gray-800 text-sm line-clamp-2">{meme.caption}</p>
-        <div className="flex items-center justify-between mt-3">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleLike}
-              className="flex items-center gap-1 text-gray-500 hover:text-red-500 transition"
-            >
-              <Heart size={18} className={liked ? 'fill-red-500 text-red-500' : ''} />
-              <span className="text-sm">{likeCount}</span>
-            </button>
-            <button
-              onClick={handleShare}
-              className="flex items-center gap-1 text-gray-500 hover:text-green-500 transition"
-            >
-              <Share2 size={18} />
-            </button>
-            <div className="flex items-center gap-1 text-gray-400">
-              <Eye size={16} />
-              <span className="text-xs">{meme.view_count}</span>
-            </div>
-          </div>
-          <span className="text-xs text-gray-400">
-            {new Date(meme.created_at).toLocaleDateString('vi-VN')}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
+import MemeCard from '../components/MemeCard';
 
 export default function Home() {
   const [trendingMemes, setTrendingMemes] = useState([]);
@@ -73,7 +15,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchFeeds();
-  }, []);
+  }, [user]);
 
   const fetchFeeds = async () => {
     setLoading(true);
@@ -97,31 +39,41 @@ export default function Home() {
             SocialMeme
           </Link>
           <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <Link
               to="/create"
               className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
             >
               + Tạo meme
             </Link>
-            {user ? (
-              <div className="flex items-center gap-3">
-                <span className="text-gray-700">{user.username}</span>
-                <button
-                  onClick={() => {
-                    localStorage.removeItem('access_token');
-                    localStorage.removeItem('user');
-                    window.location.reload();
-                  }}
-                  className="text-gray-500 hover:text-red-600"
-                >
-                  Đăng xuất
-                </button>
-              </div>
-            ) : (
-              <Link to="/login" className="text-gray-600 hover:text-red-600">
-                Đăng nhập
+            {user && (
+              <Link
+                to="/recommended"
+                className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition"
+              >
+                Gợi ý Meme dành cho bạn!
               </Link>
             )}
+          </div>
+          {user ? (
+            <div className="flex items-center gap-3">
+              <span className="text-gray-700">{user.username}</span>
+              <button
+                onClick={() => {
+                  localStorage.removeItem('access_token');
+                  localStorage.removeItem('user');
+                  window.location.reload();
+                }}
+                className="text-gray-500 hover:text-red-600"
+              >
+                Đăng xuất
+              </button>
+            </div>
+          ) : (
+            <Link to="/login" className="text-gray-600 hover:text-red-600">
+              Đăng nhập
+            </Link>
+          )}
           </div>
         </div>
       </header>

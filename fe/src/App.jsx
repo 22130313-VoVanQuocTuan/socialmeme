@@ -8,6 +8,7 @@ import Home from './pages/Home';
 import CreateMeme from './pages/CreateMeme';
 import Profile from './pages/Profile';
 import MemeDetail from './pages/MemeDetail';
+import Recommended from './pages/Recommended';
 
 function PrivateRoute({ children }) {
   const { user } = useContext(AuthContext);
@@ -25,6 +26,14 @@ function AppRoutes() {
         element={
           <PrivateRoute>
             <CreateMeme />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/recommended"
+        element={
+          <PrivateRoute>
+            <Recommended />
           </PrivateRoute>
         }
       />
