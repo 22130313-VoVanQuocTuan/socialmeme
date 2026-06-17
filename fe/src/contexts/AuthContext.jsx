@@ -1,7 +1,7 @@
 // src/contexts/AuthContext.jsx
-import { createContext, useState, useEffect } from 'react';
-import { login as loginApi, register as registerApi } from '../service/authApi' ;
-import toast from 'react-hot-toast';
+import { createContext, useState, useEffect } from "react";
+import { login as loginApi, register as registerApi } from "../service/authApi";
+import toast from "react-hot-toast";
 
 export const AuthContext = createContext();
 
@@ -10,8 +10,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    const userData = localStorage.getItem('user');
+    const token = localStorage.getItem("access_token");
+    const userData = localStorage.getItem("user");
     if (token && userData) {
       setUser(JSON.parse(userData));
     }
@@ -21,16 +21,22 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const data = await loginApi(email, password);
-      localStorage.setItem('access_token', data.access_token);
-      localStorage.setItem('user', JSON.stringify({
+      localStorage.setItem("access_token", data.access_token);
+
+      // BỔ SUNG THÊM role: data.role
+      const userPayload = {
         id: data.user_id,
         username: data.username,
-      }));
-      setUser({ id: data.user_id, username: data.username });
-      toast.success('Đăng nhập thành công!');
+        role: data.role,
+      };
+
+      localStorage.setItem("user", JSON.stringify(userPayload));
+      setUser(userPayload);
+
+      toast.success("Đăng nhập thành công!");
       return true;
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Đăng nhập thất bại');
+      toast.error(error.response?.data?.detail || "Đăng nhập thất bại");
       return false;
     }
   };
@@ -38,25 +44,30 @@ export const AuthProvider = ({ children }) => {
   const register = async (username, email, password) => {
     try {
       const data = await registerApi(username, email, password);
-      localStorage.setItem('access_token', data.access_token);
-      localStorage.setItem('user', JSON.stringify({
+      localStorage.setItem("access_token", data.access_token);
+
+      const userPayload = {
         id: data.user_id,
         username: data.username,
-      }));
-      setUser({ id: data.user_id, username: data.username });
-      toast.success('Đăng ký thành công!');
+        role: data.role,
+      };
+
+      localStorage.setItem("user", JSON.stringify(userPayload));
+      setUser(userPayload);
+
+      toast.success("Đăng ký thành công!");
       return true;
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Đăng ký thất bại');
+      toast.error(error.response?.data?.detail || "Đăng ký thất bại");
       return false;
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user');
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user");
     setUser(null);
-    toast.success('Đã đăng xuất');
+    toast.success("Đã đăng xuất");
   };
 
   return (

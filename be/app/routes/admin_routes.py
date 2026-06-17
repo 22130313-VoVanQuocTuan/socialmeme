@@ -1,13 +1,15 @@
 # backend/app/routes/admin_routes.py
+from typing import List
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.controllers.admin_controller import AdminController
 from app.services.jwt_service import require_admin
+from app.schemas.user_schema import UserResponse
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
-@router.get("/users")
+@router.get("/users", response_model=List[UserResponse])
 def get_users(
     skip: int = 0,
     limit: int = 100,

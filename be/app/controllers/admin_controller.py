@@ -18,6 +18,7 @@ class AdminController:
             raise HTTPException(404, "User not found")
         user.is_active = not user.is_active
         db.commit()
+        db.refresh(user)
         return {"user_id": user_id, "is_active": user.is_active}
     
     @staticmethod

@@ -17,6 +17,7 @@ class UserResponse(BaseModel):
     email: str
     avatar_url: str
     role: str
+    is_active: bool
     created_at: datetime
     
     class Config:

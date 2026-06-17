@@ -25,14 +25,16 @@ class AuthController:
         db.refresh(user)
         
         token = create_token(user.id, user.email)
-        return {"user_id": user.id, "username": user.username, "access_token": token}
+        return {"user_id": user.id, "username": user.username, "role": user.role,"access_token": token}
     
     @staticmethod
     def login(email: str, password: str, db: Session) -> dict:
         user = db.query(User).filter(User.email == email).first()
         if not user or not verify_password(password, user.password_hash):
             raise HTTPException(401, "Invalid credentials")
+        if not user.is_active:
+            raise HTTPException(403, "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin.")
         
         token = create_token(user.id, user.email)
         BehaviorService.log_login(user.id, db)
-        return {"user_id": user.id, "username": user.username, "access_token": token}
+        return {"user_id": user.id, "username": user.username, "role": user.role, "access_token": token}
