@@ -1,5 +1,5 @@
 // src/pages/Login.jsx
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import { Eye, EyeOff } from 'lucide-react';
@@ -9,17 +9,26 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { login } = useContext(AuthContext);
+  
+  const { login, user } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  // Bẻ lái ở đây!
+  useEffect(() => {
+    if (user) {
+      if (user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const success = await login(email, password);
+    await login(email, password); // Gọi hàm login
     setLoading(false);
-    if (success) {
-      navigate('/');
-    }
   };
 
   return (
@@ -32,57 +41,22 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              placeholder="your@email.com"
-              required
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500" placeholder="your@email.com" required />
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Mật khẩu
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Mật khẩu</label>
             <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent pr-10"
-                placeholder="••••••••"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-2.5 text-gray-500"
-              >
+              <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 pr-10" placeholder="••••••••" required />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-2.5 text-gray-500">
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
           </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition duration-200 disabled:opacity-50"
-          >
+          <button type="submit" disabled={loading} className="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition duration-200 disabled:opacity-50">
             {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
           </button>
         </form>
-
-        <p className="text-center text-gray-600 mt-6">
-          Chưa có tài khoản?{' '}
-          <Link to="/register" className="text-red-600 hover:underline">
-            Đăng ký ngay
-          </Link>
-        </p>
       </div>
     </div>
   );
