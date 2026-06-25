@@ -1,0 +1,32 @@
+"""add user email verification
+
+Revision ID: 4d3f8ec4f2a1
+Revises: 752749422475
+Create Date: 2026-06-25 20:55:00.000000
+
+"""
+from typing import Sequence, Union
+
+from alembic import op
+import sqlalchemy as sa
+
+
+# revision identifiers, used by Alembic.
+revision: str = "4d3f8ec4f2a1"
+down_revision: Union[str, None] = "752749422475"
+branch_labels: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = None
+
+
+def upgrade() -> None:
+    op.add_column(
+        "users",
+        sa.Column("is_verified", sa.Boolean(), nullable=False, server_default=sa.true()),
+    )
+    op.add_column("users", sa.Column("email_verified_at", sa.DateTime(), nullable=True))
+    op.alter_column("users", "is_verified", server_default=None)
+
+
+def downgrade() -> None:
+    op.drop_column("users", "email_verified_at")
+    op.drop_column("users", "is_verified")

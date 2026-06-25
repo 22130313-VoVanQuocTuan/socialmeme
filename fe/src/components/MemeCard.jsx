@@ -1,12 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Share2, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { likeMeme, shareMeme } from '../service/memeApi';
 
 export default function MemeCard({ meme, onLike }) {
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(!!meme.is_liked);
   const [likeCount, setLikeCount] = useState(meme.like_count);
+
+  useEffect(() => {
+    setLiked(!!meme.is_liked);
+    setLikeCount(meme.like_count);
+  }, [meme.id, meme.is_liked, meme.like_count]);
 
   const handleLike = async () => {
     const result = await likeMeme(meme.id);
@@ -18,7 +23,7 @@ export default function MemeCard({ meme, onLike }) {
   const handleShare = async () => {
     await shareMeme(meme.id, 'copy_link');
     navigator.clipboard.writeText(`${window.location.origin}/meme/${meme.id}`);
-    toast.success('Đã sao chép link!');
+    toast.success('ÄÃ£ sao chÃ©p link!');
   };
 
   return (

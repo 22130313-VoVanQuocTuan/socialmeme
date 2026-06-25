@@ -15,4 +15,9 @@ def toggle_like(
     current_user: User = Depends(get_current_user)
 ):
     """Toggle like/unlike cho meme"""
-    return LikeController.toggle_like(current_user.id, meme_id, db,)
+    return LikeController.toggle_like(
+        current_user.id,
+        meme_id,
+        current_user.username,
+        db,
+    )

@@ -1,7 +1,7 @@
-// src/contexts/AuthContext.jsx
-import { createContext, useState, useEffect } from "react";
-import { login as loginApi, register as registerApi } from "../service/authApi";
+import { createContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+
+import { login as loginApi, register as registerApi } from "../service/authApi";
 
 export const AuthContext = createContext();
 
@@ -23,7 +23,6 @@ export const AuthProvider = ({ children }) => {
       const data = await loginApi(email, password);
       localStorage.setItem("access_token", data.access_token);
 
-      // BỔ SUNG THÊM role: data.role
       const userPayload = {
         id: data.user_id,
         username: data.username,
@@ -44,22 +43,11 @@ export const AuthProvider = ({ children }) => {
   const register = async (username, email, password) => {
     try {
       const data = await registerApi(username, email, password);
-      localStorage.setItem("access_token", data.access_token);
-
-      const userPayload = {
-        id: data.user_id,
-        username: data.username,
-        role: data.role,
-      };
-
-      localStorage.setItem("user", JSON.stringify(userPayload));
-      setUser(userPayload);
-
-      toast.success("Đăng ký thành công!");
-      return true;
+      toast.success(data.message || "Đăng ký thành công. Hãy kiểm tra email để xác thực.");
+      return data;
     } catch (error) {
       toast.error(error.response?.data?.detail || "Đăng ký thất bại");
-      return false;
+      return null;
     }
   };
 

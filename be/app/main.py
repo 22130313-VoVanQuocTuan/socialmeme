@@ -9,6 +9,7 @@ from app.routes import auth_routes, meme_routes, feed_routes, comment_routes
 from app.routes import like_routes, share_routes
 from app.routes import view_routes
 from app.routes import auth_routes, meme_routes, feed_routes, comment_routes, admin_routes
+from app.routes import notification_routes
 
 app = FastAPI(title="SocialMeme API", version="1.0.0")
 # CORS
@@ -34,6 +35,7 @@ app.include_router(share_routes.router)
 app.include_router(comment_routes.router)
 app.include_router(view_routes.router)
 app.include_router(admin_routes.router)
+app.include_router(notification_routes.router)
 
 @app.get("/")
 def root():

@@ -6,7 +6,7 @@ export const getComments = async (memeId) => {
 };
 
 export const createComment = async (memeId, content) => {
-  const response = await api.post(`/comments/meme/${memeId}?content=${content}`,);
+  const response = await api.post(`/comments/meme/${memeId}`, { content });
   return response.data;
 };
 

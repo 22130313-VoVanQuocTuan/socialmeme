@@ -1,10 +1,12 @@
-import { useState, useEffect, useContext } from 'react';
-import { Navigate, Link } from 'react-router-dom';
-import { AuthContext } from '../contexts/AuthContext';
+import { useContext, useEffect, useState } from 'react';
+import { Link, Navigate } from 'react-router-dom';
 import { TrendingUp } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { getRecommendedFeed } from '../service/feedApi';
+
+import NotificationBell from '../components/NotificationBell';
+import { AuthContext } from '../contexts/AuthContext';
 import MemeCard from '../components/MemeCard';
+import { getRecommendedFeed } from '../service/feedApi';
 
 export default function Recommended() {
   const [memes, setMemes] = useState([]);
@@ -27,7 +29,7 @@ export default function Recommended() {
       setMemes(data.memes || []);
       setHasBehavior(!!data.has_behavior);
     } catch (error) {
-      toast.error('Không thể tải gợi ý AI. Vui lòng thử lại sau.');
+      toast.error('Khong the tai goi y AI. Vui long thu lai sau.');
     } finally {
       setLoading(false);
     }
@@ -42,35 +44,37 @@ export default function Recommended() {
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-red-600">Gợi ý Meme dành cho bạn</h1>
-        
+            <h1 className="text-2xl font-bold text-red-600">Gợi ý meme danh cho bạn</h1>
           </div>
-          <Link
-            to="/"
-            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
-          >
-            Quay lại trang chủ
-          </Link>
+          <div className="flex items-center gap-3">
+            <NotificationBell />
+            <Link
+              to="/"
+              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+            >
+              Quay lại trang chủ
+            </Link>
+          </div>
         </div>
       </header>
 
       <div className="container mx-auto px-4 py-6">
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600" />
           </div>
         ) : !hasBehavior ? (
           <div className="rounded-2xl bg-white shadow-sm p-8 text-center">
             <TrendingUp size={40} className="mx-auto text-red-600" />
-            <h2 className="mt-4 text-xl font-semibold">Chưa đủ dữ liệu để gợi ý</h2>
+            <h2 className="mt-4 text-xl font-semibold">Chưa có dữ liệu để gợi ý</h2>
             <p className="mt-3 text-gray-500">
-              Hãy xem hoặc like một vài meme trong feed để hệ thống AI có thể gợi ý đúng hơn cho bạn.
+              Hãy xem hoặc like một vài meme để có được gợi ý phù hợp cho bạn.
             </p>
             <Link
               to="/"
               className="mt-6 inline-flex items-center justify-center px-5 py-3 rounded-full bg-red-600 text-white hover:bg-red-700 transition"
             >
-              Về feed chính
+             Về feed chính
             </Link>
           </div>
         ) : memes.length === 0 ? (
