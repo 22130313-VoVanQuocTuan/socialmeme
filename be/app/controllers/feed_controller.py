@@ -71,6 +71,7 @@ class FeedController:
         memes = db.query(Meme).filter(
             Meme.user_id == user_id,
             Meme.is_public == True,
+            Meme.status == "active",
         ).order_by(
             desc(Meme.created_at),
         ).limit(limit).all()
