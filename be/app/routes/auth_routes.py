@@ -14,3 +14,7 @@ def register(data: UserRegister, db: Session = Depends(get_db)):
 @router.post("/login")
 def login(data: UserLogin, db: Session = Depends(get_db)):
     return AuthController.login(data.email, data.password, db)
+
+@router.get("/verify-email")
+def verify_email(token: str, db: Session = Depends(get_db)):
+    return AuthController.verify_email(token, db)

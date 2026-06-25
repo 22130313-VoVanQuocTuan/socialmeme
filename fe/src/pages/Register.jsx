@@ -1,6 +1,6 @@
-// src/pages/Register.jsx
-import { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useContext, useState } from 'react';
+import { Link } from 'react-router-dom';
+
 import { AuthContext } from '../contexts/AuthContext';
 
 export default function Register() {
@@ -10,35 +10,46 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const { register } = useContext(AuthContext);
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+    setSuccessMessage('');
+
     if (password !== confirmPassword) {
       setError('Mật khẩu xác nhận không khớp');
       return;
     }
-    
+
     if (password.length < 6) {
       setError('Mật khẩu phải có ít nhất 6 ký tự');
       return;
     }
 
     setLoading(true);
-    const success = await register(username, email, password);
+    const result = await register(username, email, password);
     setLoading(false);
-    
-    if (success) {
-      navigate('/');
+
+    if (result) {
+      setSuccessMessage(
+        result.message || 'Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.'
+      );
+      setUsername('');
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-gray-100">
-      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+    <div 
+      className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat px-4"
+      style={{ backgroundImage: "url('/bg1.png')" }}
+    >
+      {/* Thêm chút hiệu ứng mờ backdrop-blur để box đăng ký trông nổi bật và đẹp hơn trên nền ảnh */}
+      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md backdrop-blur-sm bg-opacity-95 my-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-red-600">SocialMeme</h1>
           <p className="text-gray-500 mt-2">Tạo tài khoản mới</p>
@@ -48,6 +59,12 @@ export default function Register() {
           {error && (
             <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
               {error}
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="bg-green-50 text-green-700 p-3 rounded-lg text-sm">
+              {successMessage}
             </div>
           )}
 

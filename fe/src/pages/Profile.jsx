@@ -4,6 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import { Heart, Eye } from 'lucide-react';
 import { getUserMemes } from '../service/feedApi';
+import NotificationBell from '../components/NotificationBell';
 
 export default function Profile() {
   const { id } = useParams();
@@ -31,10 +32,18 @@ export default function Profile() {
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-3">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <Link to="/" className="text-2xl font-bold text-red-600">
             SocialMeme
           </Link>
+          <div className="flex items-center gap-3">
+            <NotificationBell />
+            {user && (
+              <Link to={`/profile/${user.id}`} className="text-sm text-gray-600 hover:text-red-600">
+                {user.username}
+              </Link>
+            )}
+          </div>
         </div>
       </header>
 

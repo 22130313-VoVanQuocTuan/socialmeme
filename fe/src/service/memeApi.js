@@ -1,11 +1,15 @@
 // src/services/memeApi.js
 import api from './api';
 
-export const createMeme = async (caption, imageFile) => {
+export const createMeme = async (caption, imageFile, textPosition) => {
   const formData = new FormData();
   formData.append('caption', caption);
+  if (textPosition) {
+    formData.append('text_x', String(textPosition.x));
+    formData.append('text_y', String(textPosition.y));
+  }
   formData.append('file', imageFile);
-  
+
   const response = await api.post('/memes/create', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });

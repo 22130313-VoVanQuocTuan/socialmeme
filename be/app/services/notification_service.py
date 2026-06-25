@@ -46,3 +46,15 @@ class NotificationService:
         db.commit()
         db.refresh(notification)
         return notification
+
+    @staticmethod
+    def mark_all_read(user_id: int, db: Session = None) -> int:
+        notifications = (
+            db.query(Notification)
+            .filter(Notification.user_id == user_id, Notification.is_read == False)
+            .all()
+        )
+        for notification in notifications:
+            notification.is_read = True
+        db.commit()
+        return len(notifications)
