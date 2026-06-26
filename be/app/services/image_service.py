@@ -9,8 +9,10 @@ from PIL import Image, ImageDraw, ImageFont
 
 UPLOAD_DIR = "uploads/memes"
 TEMP_DIR = "uploads/temp"
+AVATAR_DIR = "uploads/avatars"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(TEMP_DIR, exist_ok=True)
+os.makedirs(AVATAR_DIR, exist_ok=True)
 
 
 async def save_temp_image(file: UploadFile) -> str:
@@ -23,6 +25,17 @@ async def save_temp_image(file: UploadFile) -> str:
         shutil.copyfileobj(file.file, buffer)
 
     return filepath
+
+async def save_avatar_image(file: UploadFile) -> str:
+    """Luu anh avatar, tra ve duong dan."""
+    ext = file.filename.split(".")[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+    filepath = f"{AVATAR_DIR}/{filename}"
+
+    with open(filepath, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    return f"/uploads/avatars/{filename}"
 
 
 def _clamp(value: float, minimum: float, maximum: float) -> float:

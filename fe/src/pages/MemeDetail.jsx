@@ -8,7 +8,7 @@ import { Heart, Share2, Eye, Trash2, ArrowLeft, User, MessageCircle, Calendar, S
 import toast from 'react-hot-toast';
 import { getTrendingFeed } from '../service/feedApi';
 import { trackView } from '../service/viewApi';
-import NotificationBell from '../components/NotificationBell';
+import Header from '../components/Header';
 
 export default function MemeDetail() {
   const { id } = useParams();
@@ -178,44 +178,7 @@ export default function MemeDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50/70 antialiased text-gray-900">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-40 transition-all">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
-          <Link to="/" className="text-2xl font-black tracking-tight bg-gradient-to-r from-red-600 to-orange-500 bg-clip-text text-transparent hover:opacity-90 transition">
-            SocialMeme
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link
-              to="/create"
-              className="bg-red-600 text-white font-medium px-4 py-2 rounded-xl hover:bg-red-700 transition shadow-sm shadow-red-100 text-sm"
-            >
-              + Tạo meme
-            </Link>
-            {user ? (
-              <div className="flex items-center gap-4 border-l pl-4 border-gray-100">
-                <NotificationBell />
-                <Link to={`/profile/${user.id}`} className="font-semibold text-gray-700 hover:text-red-600 transition text-sm">
-                  {user.username}
-                </Link>
-                <button
-                  onClick={() => {
-                    localStorage.removeItem('access_token');
-                    localStorage.removeItem('user');
-                    window.location.href = '/';
-                  }}
-                  className="text-xs font-medium text-gray-400 hover:text-red-600 transition"
-                >
-                  Đăng xuất
-                </button>
-              </div>
-            ) : (
-              <Link to="/login" className="text-sm font-medium text-gray-600 hover:text-red-600 border border-gray-200 rounded-xl px-4 py-2 hover:border-red-200 transition">
-                Đăng nhập
-              </Link>
-            )}
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Nút quay lại */}
@@ -439,8 +402,8 @@ export default function MemeDetail() {
                           {related.caption}
                         </p>
                         <div className="flex items-center gap-3 text-xs font-medium text-gray-400 mt-1">
-                          <span>❤️ {related.like_count}</span>
-                          <span>👁️ {related.view_count}</span>
+                          <span className="flex items-center gap-1"><Heart size={14} /> {related.like_count}</span>
+                          <span className="flex items-center gap-1"><Eye size={14} /> {related.view_count}</span>
                         </div>
                       </div>
                     </Link>

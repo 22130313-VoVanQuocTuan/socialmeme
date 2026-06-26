@@ -79,6 +79,23 @@ class FeedController:
         return FeedController._serialize_memes(memes, db, current_user_id)
 
     @staticmethod
+    def get_liked_memes_by_user(
+        user_id: int,
+        db: Session,
+        limit: int = 20,
+        current_user_id: int = None,
+    ):
+        memes = db.query(Meme).join(Like, Meme.id == Like.meme_id).filter(
+            Like.user_id == user_id,
+            Meme.is_public == True,
+            Meme.status == "active",
+        ).order_by(
+            desc(Like.created_at),
+        ).limit(limit).all()
+
+        return FeedController._serialize_memes(memes, db, current_user_id)
+
+    @staticmethod
     def get_recommended_feed(user_id: int, db: Session, limit: int = 20):
         memes = RecommendationService.get_recommended_memes(user_id, db, limit)
         has_behavior = len(memes) > 0

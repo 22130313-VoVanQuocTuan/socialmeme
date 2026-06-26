@@ -26,4 +26,5 @@ class UserResponse(BaseModel):
 class UserUpdate(BaseModel):
     username: Optional[str] = None
     avatar_url: Optional[str] = None
-    bio: Optional[str] = None
+    current_password: Optional[str] = None
+    new_password: Optional[str] = None
