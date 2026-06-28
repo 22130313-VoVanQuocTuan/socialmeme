@@ -1,11 +1,11 @@
 // src/pages/CreateMeme.jsx
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Upload, X, ArrowLeft, Image as ImageIcon, Move, RotateCcw } from 'lucide-react';
+import { Upload, X, ArrowLeft, Image as ImageIcon, Move, RotateCcw, Rocket } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { AuthContext } from '../contexts/AuthContext';
 import { createMeme } from '../service/memeApi';
-import NotificationBell from '../components/NotificationBell';
+import Header from '../components/Header';
 
 const DEFAULT_TEXT_POSITION = { x: 0.5, y: 0.82 };
 
@@ -124,22 +124,7 @@ export default function CreateMeme() {
 
   return (
     <div className="min-h-screen bg-gray-50/70 antialiased text-gray-900">
-      {/* Header - Glassmorphism */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
-          <Link to="/" className="text-2xl font-black tracking-tight bg-gradient-to-r from-red-600 to-orange-500 bg-clip-text text-transparent hover:opacity-90 transition">
-            SocialMeme
-          </Link>
-          <div className="flex items-center gap-4">
-            <NotificationBell />
-            {user && (
-              <Link to={`/profile/${user.id}`} className="font-semibold text-gray-700 hover:text-red-600 text-sm border-l pl-4 border-gray-100 transition">
-                {user.username}
-              </Link>
-            )}
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main Content Container */}
       <div className="max-w-2xl mx-auto px-4 py-6">
@@ -277,7 +262,7 @@ export default function CreateMeme() {
             disabled={loading}
             className="w-full inline-flex items-center justify-center rounded-xl bg-red-600 py-3.5 text-sm font-bold text-white hover:bg-red-700 transition shadow-sm shadow-red-100 disabled:opacity-50"
           >
-            {loading ? 'Đang xuất xưởng bài viết...' : '🚀 Xuất Bản Meme'}
+            {loading ? 'Đang xuất xưởng bài viết...' : <span className="flex items-center gap-2"><Rocket size={18} /> Xuất Bản Meme</span>}
           </button>
           
         </form>

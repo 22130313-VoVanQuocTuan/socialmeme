@@ -3,7 +3,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { TrendingUp } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-import NotificationBell from '../components/NotificationBell';
+import Header from '../components/Header';
 import { AuthContext } from '../contexts/AuthContext';
 import MemeCard from '../components/MemeCard';
 import { getRecommendedFeed } from '../service/feedApi';
@@ -41,22 +41,7 @@ export default function Recommended() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <header className="bg-white shadow-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-          <div>
-            <h1 className="text-2xl font-bold text-red-600">Gợi ý meme danh cho bạn</h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <NotificationBell />
-            <Link
-              to="/"
-              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
-            >
-              Quay lại trang chủ
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <div className="container mx-auto px-4 py-6">
         {loading ? (

@@ -20,3 +20,8 @@ export const getUserMemes = async (userId, limit = 20) => {
   const response = await api.get(`/feed/user/${userId}?limit=${limit}`);
   return response.data;
 };
+
+export const getUserLikedMemes = async (userId, limit = 20) => {
+  const response = await api.get(`/feed/user/${userId}/liked?limit=${limit}`);
+  return response.data;
+};

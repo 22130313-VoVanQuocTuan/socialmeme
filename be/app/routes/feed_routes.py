@@ -55,3 +55,15 @@ def get_user_memes(
     current_user_id = current_user.id if current_user else None
     memes = FeedController.get_memes_by_user(user_id, db, limit, current_user_id)
     return {"memes": memes}
+
+
+@router.get("/user/{user_id}/liked")
+def get_user_liked_memes(
+    user_id: int,
+    limit: int = 20,
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_optional_current_user),
+):
+    current_user_id = current_user.id if current_user else None
+    memes = FeedController.get_liked_memes_by_user(user_id, db, limit, current_user_id)
+    return {"memes": memes}
