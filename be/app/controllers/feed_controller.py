@@ -32,6 +32,7 @@ class FeedController:
                 "created_at": meme.created_at,
                 "is_liked": meme.id in liked_meme_ids,
                 "user_username": meme.user.username if meme.user else None,
+                "user_avatar":  meme.user.avatar_url if meme.user else None,
                 "user_joined": meme.user.created_at if meme.user else None,
             }
             for meme in memes

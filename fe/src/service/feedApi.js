@@ -3,6 +3,7 @@ import api from './api';
 
 export const getTrendingFeed = async (limit = 20) => {
   const response = await api.get(`/feed/trending?limit=${limit}`);
+  console.log(response)
   return response.data;
 };
 
