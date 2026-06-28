@@ -11,8 +11,10 @@ import Login from "./pages/Login";
 import MemeDetail from "./pages/MemeDetail";
 import Profile from "./pages/Profile";
 import Recommended from "./pages/Recommended";
+import Predictions from './pages/Predictions';
 import Register from "./pages/Register";
 import VerifyEmail from "./pages/VerifyEmail";
+
 
 function PrivateRoute({ children }) {
   const { user } = useContext(AuthContext);
@@ -52,6 +54,7 @@ function AppRoutes() {
         }
       />
       <Route path="/meme/:id" element={<MemeDetail />} />
+      <Route path="/predictions" element={<Predictions />} />
       <Route path="/profile/:id" element={<Profile />} />
       <Route
         path="/admin"
