@@ -9,6 +9,12 @@ const adminApi = {
   },
   getDashboardStats: () => {
     return api.get('/admin/dashboard');
+  },
+  getAllMemes: (skip = 0, limit = 100) => {
+    return api.get(`/admin/memes?skip=${skip}&limit=${limit}`);
+  },
+  toggleMemeStatus: (memeId) => {
+    return api.put(`/admin/memes/${memeId}/toggle-status`);
   }
 };
 

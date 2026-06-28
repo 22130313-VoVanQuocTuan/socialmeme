@@ -141,11 +141,22 @@ const AdminDashboard = () => {
             </Link>
 
             {/* Các thẻ trống chờ tính năng tương lai (Quản lý Meme, Thống kê chi tiết...) */}
-            <div className="bg-gray-50 p-6 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 opacity-70 cursor-not-allowed">
-              <ImageIcon size={32} className="mb-2 text-gray-300" />
-              <p className="text-sm font-medium">Quản lý Meme</p>
-              <span className="text-xs mt-1 bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full">Sắp ra mắt</span>
-            </div>
+            {/* Quick Action: Quản lý Meme */}
+            <Link 
+              to="/admin/memes" 
+              className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-emerald-200 transition-all duration-300 group flex items-start gap-4 cursor-pointer"
+            >
+              <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300">
+                <ImageIcon size={24} />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-gray-800 group-hover:text-emerald-600 transition-colors">Quản lý Meme</h3>
+                <p className="text-sm text-gray-500 mt-1 line-clamp-2">Kiểm duyệt nội dung, khóa hoặc mở khóa các meme vi phạm.</p>
+              </div>
+              <div className="mt-1">
+                <ChevronRight className="text-gray-300 group-hover:text-emerald-500 transition-colors" />
+              </div>
+            </Link>
 
             <div className="bg-gray-50 p-6 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 opacity-70 cursor-not-allowed">
               <Activity size={32} className="mb-2 text-gray-300" />

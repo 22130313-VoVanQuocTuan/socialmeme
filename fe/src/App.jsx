@@ -5,6 +5,7 @@ import { Toaster } from "react-hot-toast";
 import { AuthContext, AuthProvider } from "./contexts/AuthContext";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminUsers from "./pages/AdminUsers";
+import AdminMemes from "./pages/AdminMemes";
 import CreateMeme from "./pages/CreateMeme";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -69,6 +70,14 @@ function AppRoutes() {
         element={
           <AdminRoute>
             <AdminUsers />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/memes"
+        element={
+          <AdminRoute>
+            <AdminMemes />
           </AdminRoute>
         }
       />
