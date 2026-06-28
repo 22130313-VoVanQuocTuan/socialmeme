@@ -16,6 +16,8 @@ from app.config import config
 from app.routes import auth_routes, meme_routes, feed_routes, comment_routes
 from app.routes import like_routes, share_routes
 from app.routes import view_routes, prediction_routes
+from app.routes import auth_routes, meme_routes, feed_routes, comment_routes, admin_routes
+from app.routes import notification_routes, user_routes
 
 app = FastAPI(title="SocialMeme API", version="1.0.0")
 # CORS
@@ -30,6 +32,7 @@ app.add_middleware(
 # Static files (cho ảnh meme)
 os.makedirs("uploads/memes", exist_ok=True)
 os.makedirs("uploads/temp", exist_ok=True)
+os.makedirs("uploads/avatars", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # Routes
@@ -40,6 +43,10 @@ app.include_router(like_routes.router)
 app.include_router(share_routes.router)
 app.include_router(comment_routes.router)
 app.include_router(view_routes.router)
+
+app.include_router(admin_routes.router)
+app.include_router(notification_routes.router)
+app.include_router(user_routes.router)
 app.include_router(prediction_routes.router)
 
 # Start background scheduler for predictions and daily evaluation (optional)
@@ -71,6 +78,9 @@ if _APSCHEDULER_AVAILABLE:
             print(f"Failed to stop APScheduler at shutdown: {e}")
 else:
     print("APScheduler not available — scheduler disabled. Install 'apscheduler' and 'setuptools' to enable background jobs.")
+
+
+
 
 @app.get("/")
 def root():

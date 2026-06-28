@@ -1,5 +1,5 @@
-# backend/app/services/jwt_service.py
 from datetime import datetime, timedelta
+from typing import Optional
 from jose import jwt, JWTError
 from fastapi import HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -10,16 +10,37 @@ from app.models.user import User
 
 security = HTTPBearer(auto_error=False)
 
+
 def create_token(user_id: int, email: str) -> str:
     expire = datetime.utcnow() + timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
     payload = {"sub": email, "user_id": user_id, "exp": expire}
     return jwt.encode(payload, config.SECRET_KEY, algorithm=config.ALGORITHM)
+
+
+def create_email_verification_token(user_id: int, email: str) -> str:
+    expire = datetime.utcnow() + timedelta(hours=config.EMAIL_VERIFICATION_EXPIRE_HOURS)
+    payload = {
+        "sub": email,
+        "user_id": user_id,
+        "purpose": "email_verification",
+        "exp": expire,
+    }
+    return jwt.encode(payload, config.SECRET_KEY, algorithm=config.ALGORITHM)
+
 
 def verify_token(token: str) -> dict:
     try:
         return jwt.decode(token, config.SECRET_KEY, algorithms=[config.ALGORITHM])
     except JWTError:
         return None
+
+
+def verify_email_verification_token(token: str) -> dict:
+    payload = verify_token(token)
+    if not payload or payload.get("purpose") != "email_verification":
+        return None
+    return payload
+
 
 def get_user_from_token(token: str, db: Session) -> User:
     payload = verify_token(token)
@@ -30,19 +51,42 @@ def get_user_from_token(token: str, db: Session) -> User:
         return None
     return user
 
+
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ) -> User:
+    if not credentials:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
     payload = verify_token(credentials.credentials)
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid token")
-    
+
     user = db.query(User).filter(User.id == payload.get("user_id")).first()
     if not user or not user.is_active:
         raise HTTPException(status_code=401, detail="User not found")
-    
+
     return user
+
+
+async def get_optional_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(get_db),
+) -> Optional[User]:
+    if not credentials:
+        return None
+
+    payload = verify_token(credentials.credentials)
+    if not payload:
+        return None
+
+    user = db.query(User).filter(User.id == payload.get("user_id")).first()
+    if not user or not user.is_active:
+        return None
+
+    return user
+
 
 async def require_admin(user: User = Depends(get_current_user)) -> User:
     if user.role != "admin":

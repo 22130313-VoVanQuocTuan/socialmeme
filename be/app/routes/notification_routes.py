@@ -53,6 +53,15 @@ def mark_notification_read(
     return serialize_notification(notification)
 
 
+@router.post("/read-all")
+def mark_all_notifications_read(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    updated_count = NotificationService.mark_all_read(current_user.id, db=db)
+    return {"updated_count": updated_count}
+
+
 @router.get("/stream")
 def notification_stream(token: str = Query(...)):
     db = SessionLocal()

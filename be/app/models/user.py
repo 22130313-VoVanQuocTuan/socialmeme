@@ -16,6 +16,8 @@ class User(Base, TimestampMixin):
     
     role = Column(String(20), default="user")  # user, admin
     is_active = Column(Boolean, default=True)
+    is_verified = Column(Boolean, default=True, nullable=False)
+    email_verified_at = Column(DateTime, nullable=True)
     
     last_login = Column(DateTime, nullable=True)
     

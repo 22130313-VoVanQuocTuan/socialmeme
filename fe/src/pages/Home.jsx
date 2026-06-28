@@ -2,9 +2,10 @@
 import { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
-import { TrendingUp, Clock } from 'lucide-react';
+import { TrendingUp, Clock, Sparkles } from 'lucide-react';
 import { getLatestFeed, getTrendingFeed } from '../service/feedApi';
 import MemeCard from '../components/MemeCard';
+import Header from '../components/Header';
 
 export default function Home() {
   const [trendingMemes, setTrendingMemes] = useState([]);
@@ -19,105 +20,87 @@ export default function Home() {
 
   const fetchFeeds = async () => {
     setLoading(true);
-    const [trending, latest] = await Promise.all([
-      getTrendingFeed(10),
-      getLatestFeed(10),
-    ]);
-    setTrendingMemes(trending.memes || []);
-    setLatestMemes(latest.memes || []);
-    setLoading(false);
+    try {
+      const [trending, latest] = await Promise.all([
+        getTrendingFeed(10),
+        getLatestFeed(10),
+      ]);
+      setTrendingMemes(trending.memes || []);
+      setLatestMemes(latest.memes || []);
+    } catch (error) {
+      console.error("Lỗi khi tải danh sách meme:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const displayMemes = activeTab === 'trending' ? trendingMemes : latestMemes;
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-          <Link to="/" className="text-2xl font-bold text-red-600">
-            SocialMeme
-          </Link>
-          <div className="flex items-center gap-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-            <Link
-              to="/create"
-              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
-            >
-              + Tạo meme
-            </Link>
-            {user && (
-              <Link
-                to="/recommended"
-                className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition"
-              >
-                Gợi ý Meme dành cho bạn!
-              </Link>
-            )}
-          </div>
-          {user ? (
-            <div className="flex items-center gap-3">
-              <span className="text-gray-700">{user.username}</span>
-              <button
-                onClick={() => {
-                  localStorage.removeItem('access_token');
-                  localStorage.removeItem('user');
-                  window.location.reload();
-                }}
-                className="text-gray-500 hover:text-red-600"
-              >
-                Đăng xuất
-              </button>
-            </div>
-          ) : (
-            <Link to="/login" className="text-gray-600 hover:text-red-600">
-              Đăng nhập
-            </Link>
-          )}
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gray-50/70 antialiased text-gray-900布">
+      <Header />
 
-      {/* Tabs */}
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex gap-4 mb-6 border-b">
+      {/* Main Content Container */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        
+        {/* Nút Gợi ý dành riêng cho Mobile (Hiện ra khi màn hình nhỏ) */}
+        {user && (
+          <div className="block md:hidden mb-4">
+            <Link
+              to="/recommended"
+              className="flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-50 to-orange-50 text-orange-700 border border-orange-100 py-2.5 rounded-xl font-semibold text-sm shadow-sm"
+            >
+              <Sparkles size={15} />
+              Xem gợi ý Meme dành riêng cho bạn!
+            </Link>
+          </div>
+        )}
+
+        {/* Bộ lọc Tabs - Thiết kế Hiện đại & Indicator đẹp mắt */}
+        <div className="flex gap-2 mb-8 bg-gray-200/50 p-1 rounded-xl w-fit">
           <button
             onClick={() => setActiveTab('trending')}
-            className={`pb-2 px-4 flex items-center gap-2 ${
+            className={`px-5 py-2 rounded-lg flex items-center gap-2 text-sm font-bold transition-all duration-200 ${
               activeTab === 'trending'
-                ? 'border-b-2 border-red-600 text-red-600'
-                : 'text-gray-500'
+                ? 'bg-white text-red-600 shadow-sm'
+                : 'text-gray-500 hover:text-gray-800'
             }`}
           >
-            <TrendingUp size={18} />
-            Thịnh hành
+            <TrendingUp size={16} />
+            Thị hành
           </button>
           <button
             onClick={() => setActiveTab('latest')}
-            className={`pb-2 px-4 flex items-center gap-2 ${
+            className={`px-5 py-2 rounded-lg flex items-center gap-2 text-sm font-bold transition-all duration-200 ${
               activeTab === 'latest'
-                ? 'border-b-2 border-red-600 text-red-600'
-                : 'text-gray-500'
+                ? 'bg-white text-red-600 shadow-sm'
+                : 'text-gray-500 hover:text-gray-800'
             }`}
           >
-            <Clock size={18} />
+            <Clock size={16} />
             Mới nhất
           </button>
         </div>
 
-        {/* Meme Grid */}
+        {/* Khối Meme Grid hoặc Loading/Empty */}
         {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+          <div className="flex flex-col items-center justify-center py-24 gap-3">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-red-100 border-t-red-600"></div>
+            <p className="text-sm font-medium text-gray-400 animate-pulse">Đang nạp năng lượng meme...</p>
           </div>
         ) : displayMemes.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            Chưa có meme nào. Hãy là người đầu tiên tạo meme!
+          <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 p-8 max-w-md mx-auto shadow-sm">
+            <p className="text-gray-400 font-medium mb-3">Chưa có chiếc meme nào ở đây cả...</p>
+            <Link to="/create" className="text-sm font-bold text-red-600 hover:underline">
+              Trở thành người đầu tiên tạo meme ngay!
+            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {displayMemes.map((meme) => (
-              <MemeCard key={meme.id} meme={meme} onLike={fetchFeeds} />
+              <div key={meme.id} className="transform hover:-translate-y-1 transition-all duration-300">
+                <MemeCard meme={meme} onLike={fetchFeeds} />
+              </div>
             ))}
           </div>
         )}
