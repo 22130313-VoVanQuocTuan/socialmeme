@@ -40,3 +40,20 @@ def get_dashboard(
     admin=Depends(require_admin)
 ):
     return AdminController.get_dashboard_stats(db)
+
+@router.get("/memes")
+def get_all_memes(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    admin=Depends(require_admin)
+):
+    return AdminController.get_all_memes(db, skip, limit)
+
+@router.put("/memes/{meme_id}/toggle-status")
+def toggle_meme_status(
+    meme_id: int,
+    db: Session = Depends(get_db),
+    admin=Depends(require_admin)
+):
+    return AdminController.toggle_meme_status(meme_id, db)
