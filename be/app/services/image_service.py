@@ -7,6 +7,16 @@ from typing import Optional
 from fastapi import UploadFile
 from PIL import Image, ImageDraw, ImageFont
 
+import cloudinary
+import cloudinary.uploader
+from app.config import config
+
+cloudinary.config(
+    cloud_name=config.CLOUDINARY_CLOUD_NAME,
+    api_key=config.CLOUDINARY_API_KEY,
+    api_secret=config.CLOUDINARY_API_SECRET
+)
+
 UPLOAD_DIR = "uploads/memes"
 TEMP_DIR = "uploads/temp"
 AVATAR_DIR = "uploads/avatars"
@@ -34,8 +44,12 @@ async def save_avatar_image(file: UploadFile) -> str:
 
     with open(filepath, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
+        
+    upload_result = cloudinary.uploader.upload(filepath, folder="avatars")
+    if os.path.exists(filepath):
+        os.remove(filepath)
 
-    return f"/uploads/avatars/{filename}"
+    return upload_result["secure_url"]
 
 
 def _clamp(value: float, minimum: float, maximum: float) -> float:
@@ -137,6 +151,11 @@ def add_caption_to_image(
     output_path = f"{UPLOAD_DIR}/{output_filename}"
     img.save(output_path)
 
-    os.remove(image_path)
+    if os.path.exists(image_path):
+        os.remove(image_path)
+        
+    upload_result = cloudinary.uploader.upload(output_path, folder="memes")
+    if os.path.exists(output_path):
+        os.remove(output_path)
 
-    return f"/uploads/memes/{output_filename}"
+    return upload_result["secure_url"]

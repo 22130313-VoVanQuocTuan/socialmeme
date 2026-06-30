@@ -8,6 +8,7 @@ import { getUserMemes, getUserLikedMemes } from '../service/feedApi';
 import { getUserStats, getUserHistory, getCurrentUser, updateProfile, uploadAvatar } from '../service/userApi';
 import Header from '../components/Header';
 import MemeCard from '../components/MemeCard';
+import { getImageUrl } from '../utils/image';
 
 export default function Profile() {
   const { id } = useParams();
@@ -196,7 +197,7 @@ export default function Profile() {
             <div className="flex items-center gap-4">
               <div className="relative w-20 h-20 shrink-0">
                 {stats?.user?.avatar_url || (isOwnProfile && user?.avatar_url) ? (
-                  <img src={`http://localhost:8000${stats?.user?.avatar_url || user?.avatar_url}`} alt="Avatar" className="w-full h-full rounded-full object-cover border-2 border-white shadow-md" />
+                  <img src={getImageUrl(stats?.user?.avatar_url || user?.avatar_url)} alt="Avatar" className="w-full h-full rounded-full object-cover border-2 border-white shadow-md" />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-red-400 to-red-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-md">
                     {stats?.user?.username?.[0]?.toUpperCase() || (isOwnProfile ? user?.username?.[0]?.toUpperCase() : 'U')}
@@ -374,7 +375,7 @@ export default function Profile() {
                         <p className="text-sm font-medium text-gray-700 mb-3 bg-white p-3 rounded-lg border-l-2 border-blue-400 shadow-sm whitespace-pre-wrap">{item.content}</p>
                       )}
                       <Link to={`/meme/${item.meme.id}`} className="flex gap-3 items-center bg-white p-2 rounded-xl border border-gray-200 hover:border-red-300 transition group">
-                        <img src={`http://localhost:8000${item.meme.image_url}`} className="w-14 h-14 object-cover rounded-lg shadow-sm" alt="meme" />
+                        <img src={getImageUrl(item.meme.image_url)} className="w-14 h-14 object-cover rounded-lg shadow-sm" alt="meme" />
                         <span className="text-sm font-medium text-gray-700 line-clamp-2 group-hover:text-red-600 transition">{item.meme.caption || 'Meme không có tiêu đề'}</span>
                       </Link>
                     </div>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import adminApi from "../service/adminApi";
 import toast from "react-hot-toast";
+import { getImageUrl } from "../utils/image";
 import {
   ArrowLeft,
   Image as ImageIcon,
@@ -64,14 +65,7 @@ const AdminMemes = () => {
     }
   };
 
-  const getImageUrl = (url) => {
-    if (!url) return "https://placehold.co/150x150?text=No+Image";
-    const cleanUrl = url.replace(/\\/g, "/");
 
-    if (cleanUrl.startsWith("http")) return cleanUrl;
-    if (cleanUrl.startsWith("/")) return `http://localhost:8000${cleanUrl}`;
-    return `http://localhost:8000/${cleanUrl}`;
-  };
 
   // Logic Lọc & Tìm kiếm tổng hợp
   const filteredMemes = memes.filter((meme) => {

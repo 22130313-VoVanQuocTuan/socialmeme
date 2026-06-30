@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Heart, Share2, Eye } from "lucide-react";
 import toast from "react-hot-toast";
 import { likeMeme, shareMeme } from "../service/memeApi";
+import { getImageUrl } from "../utils/image";
 
 export default function MemeCard({ meme, onLike }) {
   const [liked, setLiked] = useState(!!meme.is_liked);
@@ -34,7 +35,7 @@ export default function MemeCard({ meme, onLike }) {
           className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden"
         >
           <img
-            src={`http://localhost:8000${meme.user_avatar || "/default-avatar.png"}`}
+            src={getImageUrl(meme.user_avatar || "/default-avatar.png")}
             alt={meme.user_username || `User #${meme.user_id}`}
             className="w-full h-full object-cover"
             onError={(e) => {
@@ -57,7 +58,7 @@ export default function MemeCard({ meme, onLike }) {
       </div>
       <Link to={`/meme/${meme.id}`}>
         <img
-          src={`http://localhost:8000${meme.image_url}`}
+          src={getImageUrl(meme.image_url)}
           alt="meme"
           className="w-full object-cover"
         />

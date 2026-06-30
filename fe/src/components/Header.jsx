@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Sparkles, User, LogOut } from 'lucide-react';
 import { AuthContext } from '../contexts/AuthContext';
 import NotificationBell from './NotificationBell';
+import { getImageUrl } from '../utils/image';
 
 export default function Header() {
   const { user } = useContext(AuthContext);
@@ -46,7 +47,7 @@ export default function Header() {
               <div className="relative group">
                 <button className="flex items-center gap-2 focus:outline-none">
                   {user.avatar_url ? (
-                    <img src={`http://localhost:8000${user.avatar_url}`} alt="Avatar" className="w-9 h-9 rounded-full object-cover shadow-sm border border-red-100 group-hover:ring-2 group-hover:ring-red-200 transition-all" />
+                    <img src={getImageUrl(user.avatar_url)} alt="Avatar" className="w-9 h-9 rounded-full object-cover shadow-sm border border-red-100 group-hover:ring-2 group-hover:ring-red-200 transition-all" />
                   ) : (
                     <div className="w-9 h-9 bg-gradient-to-br from-red-500 to-orange-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm border border-red-100 group-hover:ring-2 group-hover:ring-red-200 transition-all">
                       {user.username?.[0]?.toUpperCase()}

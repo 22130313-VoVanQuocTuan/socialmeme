@@ -9,6 +9,7 @@ import toast from 'react-hot-toast';
 import { getTrendingFeed } from '../service/feedApi';
 import { trackView } from '../service/viewApi';
 import Header from '../components/Header';
+import { getImageUrl } from '../utils/image';
 
 export default function MemeDetail() {
   const { id } = useParams();
@@ -200,7 +201,7 @@ export default function MemeDetail() {
               {/* Khu vực ảnh (Nền tối để làm nổi bật ảnh meme) */}
               <div className="bg-neutral-950 flex items-center justify-center relative group">
                 <img
-                  src={`http://localhost:8000${meme.image_url}`}
+                  src={getImageUrl(meme.image_url)}
                   alt={meme.caption || 'Meme'}
                   className="w-full object-contain"
                   style={{ minHeight: '350px', maxHeight: '650px' }}
@@ -393,7 +394,7 @@ export default function MemeDetail() {
                       className="flex gap-3 p-1.5 rounded-xl hover:bg-gray-50 group transition"
                     >
                       <img
-                        src={`http://localhost:8000${related.image_url}`}
+                        src={getImageUrl(related.image_url)}
                         alt=""
                         className="w-16 h-16 object-cover rounded-xl bg-gray-100 group-hover:opacity-90 transition"
                       />
