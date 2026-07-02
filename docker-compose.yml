@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: socialmeme_db
+    environment:
+      POSTGRES_USER: socialmeme_user
+      POSTGRES_PASSWORD: Socialmeme123
+      POSTGRES_DB: socialmeme_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - socialmeme_postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - socialmeme_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: socialmeme_redis
+    ports:
+      - "6380:6379"
+    restart: unless-stopped
+    networks:
+      - socialmeme_net
+
+  backend:
+    build:
+      context: ./be
+      dockerfile: Dockerfile
+    container_name: socialmeme_backend
+    environment:
+      - DATABASE_URL=postgresql://socialmeme_user:Socialmeme123@db:5432/socialmeme_db
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - ./be/.env
+    ports:
+      - "8001:8001"
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./be/uploads:/app/uploads
+    restart: unless-stopped
+    networks:
+      - socialmeme_net
+
+  frontend:
+    build:
+      context: ./fe
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=/api
+    container_name: socialmeme_frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - socialmeme_net
+
+volumes:
+  socialmeme_postgres_data:
+
+networks:
+  socialmeme_net:
+    driver: bridge
