@@ -72,7 +72,11 @@ class MemeController:
         meme = db.query(Meme).filter(Meme.id == meme_id).first()
         if not meme:
             raise HTTPException(404, "Meme not found")
-        if meme.user_id != user_id:
+            
+        # Check if user is owner or admin
+        from app.models.user import User
+        user = db.query(User).filter(User.id == user_id).first()
+        if meme.user_id != user_id and (not user or user.role != 'admin'):
             raise HTTPException(403, "Not your meme")
 
         db.delete(meme)
