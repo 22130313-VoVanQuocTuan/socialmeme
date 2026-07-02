@@ -1,4 +1,6 @@
 # backend/app/main.py
+from datetime import datetime
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -9,7 +11,6 @@ try:
     _APSCHEDULER_AVAILABLE = True
 except ModuleNotFoundError:
     _APSCHEDULER_AVAILABLE = False
-
 from app.services.prediction_service import PredictionService
 
 from app.config import config
@@ -53,9 +54,39 @@ app.include_router(prediction_routes.router)
 if _APSCHEDULER_AVAILABLE:
     scheduler = BackgroundScheduler()
     # hourly prediction job
-    scheduler.add_job(PredictionService.run_hourly_predictions, 'interval', hours=1, next_run_time=None)
+    # scheduler.add_job(
+    #     PredictionService.run_hourly_predictions,
+    #     'interval',
+    #     hours=1,
+    #     next_run_time=None)
     # daily evaluation at 00:00
-    scheduler.add_job(PredictionService.run_daily_evaluation, CronTrigger(hour=0, minute=0), next_run_time=None)
+    # scheduler.add_job(
+    #     PredictionService.run_daily_evaluation,
+    #     CronTrigger(hour=0, minute=0),
+    #     next_run_time=None)
+
+    #For test
+    scheduler.add_job(
+        PredictionService.run_hourly_predictions,
+        'interval',
+        minutes=5,
+        next_run_time=datetime.now()
+    )
+
+    scheduler.add_job(
+        PredictionService.run_daily_evaluation,
+        'interval',
+        minutes=6,
+        next_run_time=datetime.now()
+    )
+
+    # Check model accuracy and retrain if needed (weekly on Sunday at 01:00)
+    scheduler.add_job(
+        PredictionService.retrain_model_if_needed,
+        CronTrigger(day_of_week=6, hour=1, minute=0),
+        id='model_retrain_check',
+        replace_existing=True
+    )
 
     @app.on_event("startup")
     def start_scheduler():

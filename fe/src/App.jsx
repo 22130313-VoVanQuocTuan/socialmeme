@@ -6,6 +6,7 @@ import { AuthContext, AuthProvider } from "./contexts/AuthContext";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminUsers from "./pages/AdminUsers";
 import AdminMemes from "./pages/AdminMemes";
+import AdminPredictions from "./pages/Predictions";
 import CreateMeme from "./pages/CreateMeme";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -78,6 +79,14 @@ function AppRoutes() {
         element={
           <AdminRoute>
             <AdminMemes />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/admin/predictions"
+        element={
+          <AdminRoute>
+            <AdminPredictions />
           </AdminRoute>
         }
       />

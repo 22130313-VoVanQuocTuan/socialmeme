@@ -11,6 +11,7 @@ import {
   Moon,
   ShieldCheck,
   Sun,
+  TrendingUp,
   Users,
 } from 'lucide-react';
 import { AuthContext } from '../contexts/AuthContext';
@@ -344,11 +345,21 @@ const AdminDashboard = () => {
               </div>
             </Link>
 
-            <div className="bg-gray-50 p-6 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 opacity-70 cursor-not-allowed">
-              <Activity size={32} className="mb-2 text-gray-300" />
-              <p className="text-sm font-medium">Báo cáo doanh thu</p>
-              <span className="text-xs mt-1 bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full">Sắp ra mắt</span>
-            </div>
+            <Link
+              to="/admin/predictions"
+              className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-purple-200 transition-all duration-300 group flex items-start gap-4 cursor-pointer"
+            >
+              <div className="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
+                <TrendingUp size={24} />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-gray-800 group-hover:text-purple-600 transition-colors">Quản lý dự báo</h3>
+                <p className="text-sm text-gray-500 mt-1 line-clamp-2">Theo dõi dự báo xu hướng meme và độ chính xác của hệ thống.</p>
+              </div>
+              <div className="mt-1">
+                <ChevronRight className="text-gray-300 group-hover:text-purple-500 transition-colors" />
+              </div>
+            </Link>
           </div>
         </div>
       </main>

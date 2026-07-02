@@ -1,6 +1,12 @@
 import os
 from datetime import datetime, timedelta
+from pathlib import Path
 import joblib
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 from sqlalchemy import func
 from app.database import SessionLocal
 from app.models.meme import Meme
@@ -10,10 +16,11 @@ from app.models.user import User
 
 class PredictionService:
     MODEL_PATH_ENV = "MODEL_DU_DOAN_HOT_PATH"
-
+    BASE_DIR = Path(__file__).resolve().parents[2]
+    MODEL_PATH = BASE_DIR / "app" / "models" / "prediction" / "model_du_doan_hot.pkl"
     @staticmethod
     def _load_model():
-        path = os.getenv(PredictionService.MODEL_PATH_ENV, "models/model_du_doan_hot.joblib")
+        path = Path(os.getenv(PredictionService.MODEL_PATH_ENV, str(PredictionService.MODEL_PATH)))
         if not os.path.exists(path):
             print(f"Prediction model not found at {path}, skipping predictions")
             return None
@@ -40,6 +47,7 @@ class PredictionService:
 
     @staticmethod
     def run_hourly_predictions():
+        print("Prediction job started")
         db = SessionLocal()
         try:
             model = PredictionService._load_model()
@@ -103,6 +111,7 @@ class PredictionService:
 
     @staticmethod
     def run_daily_evaluation():
+        print("Daily evaluation job started")
         db = SessionLocal()
         try:
             total_users = db.query(func.count(User.id)).scalar() or 0
@@ -147,3 +156,157 @@ class PredictionService:
             db.rollback()
         finally:
             db.close()
+
+    @staticmethod
+    def calculate_accuracy():
+        """Tính toán độ chính xác của model từ các dự báo đã được đánh giá."""
+        db = SessionLocal()
+        try:
+            # Lấy tất cả predictions đã được evaluated
+            evaluated_preds = db.query(TrendPrediction).filter(
+                TrendPrediction.evaluated_at.is_not(None),
+                TrendPrediction.actually_hot.is_not(None)
+            ).all()
+
+            if len(evaluated_preds) == 0:
+                print("No evaluated predictions found")
+                return None
+
+            # Tính toán số lần dự báo đúng
+            correct_count = sum(1 for p in evaluated_preds if p.is_predicted_hot == p.actually_hot)
+            accuracy = correct_count / len(evaluated_preds)
+
+            print(f"Current model accuracy: {accuracy:.4f} ({correct_count}/{len(evaluated_preds)})")
+            return accuracy
+
+        except Exception as e:
+            print(f"Error calculating accuracy: {e}")
+            return None
+        finally:
+            db.close()
+
+    @staticmethod
+    def _prepare_training_data(min_samples=100):
+        """Chuẩn bị dữ liệu huấn luyện từ TrendPrediction đã được evaluated."""
+        db = SessionLocal()
+        try:
+            # Lấy predictions đã được evaluated
+            evaluated_preds = db.query(TrendPrediction).filter(
+                TrendPrediction.evaluated_at.is_not(None),
+                TrendPrediction.actually_hot.is_not(None)
+            ).all()
+
+            if len(evaluated_preds) < min_samples:
+                print(f"Not enough evaluated predictions ({len(evaluated_preds)}/{min_samples})")
+                return None
+
+            # Chuyển thành DataFrame
+            data = []
+            for p in evaluated_preds:
+                data.append({
+                    'likes_1h': p.likes_1h or 0,
+                    'views_1h': p.views_1h or 0,
+                    'shares_1h': p.shares_1h or 0,
+                    'like_rate_1h': p.like_rate_1h or 0,
+                    'share_rate_1h': p.share_rate_1h or 0,
+                    'view_velocity': p.view_velocity or 0,
+                    'hour_post': p.hour_post or 0,
+                    'day_of_week': p.day_of_week or 0,
+                    'user_avg_likes': p.user_avg_likes or 0,
+                    'actually_hot': int(p.actually_hot)
+                })
+
+            df = pd.DataFrame(data)
+            print(f"Prepared {len(df)} samples for training")
+            return df
+
+        except Exception as e:
+            print(f"Error preparing training data: {e}")
+            return None
+        finally:
+            db.close()
+
+    @staticmethod
+    def _retrain_model(df):
+        """Huấn luyện lại model từ dữ liệu mới."""
+        try:
+            features = [
+                'likes_1h', 'views_1h', 'shares_1h', 'like_rate_1h', 
+                'share_rate_1h', 'view_velocity', 'hour_post', 'day_of_week', 
+                'user_avg_likes'
+            ]
+
+            X = df[features].fillna(0)
+            y = df['actually_hot'].astype(int)
+
+            # Chia train/test
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=0.2, random_state=42, stratify=y
+            )
+
+            # Huấn luyện model
+            model = RandomForestClassifier(
+                n_estimators=100,
+                max_depth=10,
+                min_samples_split=2,
+                min_samples_leaf=1,
+                max_features='sqrt',
+                random_state=42,
+                n_jobs=-1
+            )
+
+            model.fit(X_train, y_train)
+
+            # Đánh giá
+            y_pred = model.predict(X_test)
+            new_accuracy = accuracy_score(y_test, y_pred)
+
+            print(f"New model accuracy on test set: {new_accuracy:.4f}")
+
+            # Lưu model
+            model_path = PredictionService.MODEL_PATH
+            model_path.parent.mkdir(parents=True, exist_ok=True)
+            joblib.dump(model, str(model_path))
+            print(f"Model saved to {model_path}")
+
+            return True, new_accuracy
+
+        except Exception as e:
+            print(f"Error retraining model: {e}")
+            return False, None
+
+    @staticmethod
+    def retrain_model_if_needed(accuracy_threshold=0.85):
+        """
+        Kiểm tra độ chính xác và tái huấn luyện model nếu dưới ngưỡng.
+        Args:
+            accuracy_threshold: Ngưỡng độ chính xác (mặc định 85%)
+        """
+        print(f"\n--- Checking model accuracy (threshold: {accuracy_threshold:.1%}) ---")
+        
+        # Tính toán accuracy hiện tại
+        current_accuracy = PredictionService.calculate_accuracy()
+        
+        if current_accuracy is None:
+            print("Cannot calculate accuracy, skipping retrain check")
+            return
+
+        if current_accuracy >= accuracy_threshold:
+            print(f"Model accuracy ({current_accuracy:.1%}) is good, no retrain needed")
+            return
+
+        print(f"Model accuracy ({current_accuracy:.1%}) is below threshold ({accuracy_threshold:.1%})")
+        print("Preparing to retrain model...")
+
+        # Chuẩn bị dữ liệu
+        df = PredictionService._prepare_training_data(min_samples=100)
+        if df is None:
+            print("Cannot prepare training data, skipping retrain")
+            return
+
+        # Huấn luyện lại
+        success, new_accuracy = PredictionService._retrain_model(df)
+        if success:
+            print(f"Model retrained successfully! New accuracy: {new_accuracy:.1%}")
+        else:
+            print("Model retrain failed")
